@@ -1,0 +1,89 @@
+---
+title: "Study 1 Analysis"
+author: "Bryan Hee"
+date: "February 20, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(dplyr)
+library(xts)
+library(highfrequency)
+library(lubridate)
+library(readxl)
+library(devtools)
+```
+
+```{r load_data}
+Temp_Conf2 <- read_excel("C:/Users/BryanHee/OneDrive - stok LLC/Senseware/Data Processing/Upstairs Conference Room/Raw Data/temperature-upstairs-conference.xlsx", col_types = c("date", "numeric", "numeric", "numeric", "numeric", "numeric"))
+  
+RH_Conf2 <- read_excel("C:/Users/BryanHee/OneDrive - stok LLC/Senseware/Data Processing/Upstairs Conference Room/Raw Data/Humidity.xlsx", col_types = c("date", "numeric", "numeric", "numeric"))
+
+CO2_Conf2 <- read_excel("C:/Users/BryanHee/OneDrive - stok LLC/Senseware/Data Processing/Upstairs Conference Room/Raw Data/CO2.xlsx", col_types = c("date", "numeric", "numeric", "numeric"))
+
+IAQ_Conf2 <- read_excel("C:/Users/BryanHee/OneDrive - stok LLC/Senseware/Data Processing/Upstairs Conference Room/Raw Data/VOC.xlsx", col_types = c("date", "numeric", "numeric","numeric","numeric", "numeric"))
+
+glimpse(CO2_Conf2)
+glimpse(RH_Conf2)
+glimpse(Temp_Conf2)
+glimpse(IAQ_Conf2)
+```
+
+```{r}
+RH_Conf2_sample = RH_Conf2[1:10000,]
+RH_Column <- RH_Conf2_sample$`Humidity - Upstairs Conference Room Table`
+```
+
+
+
+```{r Temp 15 Min}
+Temp_xts = xts(Temp_Conf2, order.by = as.POSIXct(Temp_Conf2$DateTime, format = "%m-%d-%y %H:%M"))
+Temp_Conf2_15m = aggregatets(Temp_xts, FUN = "mean", on = "minutes", k = 15, dropna = TRUE)
+rm(Temp_xts)
+```
+
+```{r RH 15 Min}
+RH_Column_xts = xts(RH_Column, order.by = as.POSIXct(RH_Column$DateTime, format = "%m-%d-%y %H:%M"))
+myMean = function(x){mean(x, na.rm=TRUE)}
+RH_Column_15m = aggregatets(RH_Column, FUN = "myMean", on = "minutes", k = 15, dropna = TRUE)
+```
+
+```{r CO2 15 Min}
+CO2_xts = xts(CO2_Conf2, order.by = as.POSIXct(CO2_Conf2$DateTime, format = "%m-%d-%y %H:%M"))
+CO2_Conf2_15m = aggregatets(CO2_xts, FUN = "mean", on = "minutes", k = 15, dropna = TRUE)
+```
+
+
+```{r Adding Columns}
+IAQ_Conf2 <- mutate(IAQ_Conf2, month = month(DateTime),
+                    day = day(DateTime),
+                    year = year(DateTime),
+                    week = week(DateTime))
+RH_Conf2_15m <- mutate(RH_Conf2_15m, month = month(DateTime),
+                    day = day(DateTime),
+                    year = year(DateTime),
+                    week = week(DateTime))
+Temp_Conf2_15m <- mutate(Temp_Conf2_15m, month = month(DateTime),
+                    day = day(DateTime),
+                    year = year(DateTime),
+                    week = week(DateTime))
+CO2_Conf2_15m <- mutate(CO2_Conf2_15m, month = month(DateTime),
+                    day = day(DateTime),
+                    year = year(DateTime),
+                    week = week(DateTime))
+```
+
+```{r}
+library(chrras/climateeng)
+
+psychrometric_chart()
+
+temp.db <- c(20, 23, 18, 20, 10, 27)
+hum.ratio <- c(0.005, 0.009, 0.004, 0.011, 0.004, 0.01)
+psychrometric_chart(temp.db, hum.ratio, alpha = 1)
+
+psychrometric_chart(temp.db, hum.ratio, temp.min=5, mollier = TRUE,
+ alpha = 1)
+```
