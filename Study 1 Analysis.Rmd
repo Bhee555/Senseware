@@ -1,7 +1,7 @@
 ---
 title: "Study 1 Analysis"
 author: "Bryan Hee"
-date: "February 20, 2018"
+date: "March 15, 2018"
 output: html_document
 ---
 
@@ -23,7 +23,10 @@ RH_Conf2 <- read_excel("C:/Users/BryanHee/OneDrive - stok LLC/Senseware/Data Pro
 
 CO2_Conf2 <- read_excel("C:/Users/BryanHee/OneDrive - stok LLC/Senseware/Data Processing/Upstairs Conference Room/Raw Data/CO2.xlsx", col_types = c("date", "numeric", "numeric", "numeric"))
 
-IAQ_Conf2 <- read_excel("C:/Users/BryanHee/OneDrive - stok LLC/Senseware/Data Processing/Upstairs Conference Room/Raw Data/VOC.xlsx", col_types = c("date", "numeric", "numeric","numeric","numeric", "numeric"))
+IAQ_Conf2 <- read_excel("C:/Users/BryanHee/OneDrive - stok LLC/Senseware/Data Processing/Upstairs Conference Room/Raw Data/VOC.xlsx", col_types = c("date", "numeric", "numeric","numeric", "numeric", "numeric"))
+
+
+IAQ_Conf2 <- read_excel("C:/Users/BryanHee/OneDrive - stok LLC/Senseware/Data Processing/Upstairs Conference Room/Raw Data/VOC.xlsx", col_types = c("date", "numeric", "numeric", "numeric", "numeric", "numeric"))
 
 glimpse(CO2_Conf2)
 glimpse(RH_Conf2)
