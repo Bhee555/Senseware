@@ -25,49 +25,57 @@ CO2_Conf2 <- read_excel("C:/Users/BryanHee/OneDrive - stok LLC/Senseware/Data Pr
 
 IAQ_Conf2 <- read_excel("C:/Users/BryanHee/OneDrive - stok LLC/Senseware/Data Processing/Upstairs Conference Room/Raw Data/VOC.xlsx", col_types = c("date", "numeric", "numeric","numeric", "numeric", "numeric"))
 
-
-IAQ_Conf2 <- read_excel("C:/Users/BryanHee/OneDrive - stok LLC/Senseware/Data Processing/Upstairs Conference Room/Raw Data/VOC.xlsx", col_types = c("date", "numeric", "numeric", "numeric", "numeric", "numeric"))
-
 glimpse(CO2_Conf2)
 glimpse(RH_Conf2)
 glimpse(Temp_Conf2)
 glimpse(IAQ_Conf2)
 ```
 
-```{r}
-RH_Conf2_sample = RH_Conf2[1:10000,]
-RH_Column <- RH_Conf2_sample$`Humidity - Upstairs Conference Room Table`
-```
-
-
-
 ```{r Temp 15 Min}
-Temp_xts = xts(Temp_Conf2, order.by = as.POSIXct(Temp_Conf2$DateTime, format = "%m-%d-%y %H:%M"))
-Temp_Conf2_15m = aggregatets(Temp_xts, FUN = "mean", on = "minutes", k = 15, dropna = TRUE)
-rm(Temp_xts)
+Temp_dt <- Temp_Conf2$DateTime
+Temp_xts = xts(Temp_Conf2, order.by = Temp_dt)
+Temp_xts$DateTime <- NULL
+my_mean <- function(x){
+  mean(as.numeric(x), na.rm = TRUE)
+}
+Temp_Conf2_15m = aggregatets(Temp_xts, FUN = "my_mean", on = "minutes", k = 15)
+rm(Temp_Conf2, Temp_xts, Temp_dt)
 ```
 
 ```{r RH 15 Min}
-RH_Column_xts = xts(RH_Column, order.by = as.POSIXct(RH_Column$DateTime, format = "%m-%d-%y %H:%M"))
-myMean = function(x){mean(x, na.rm=TRUE)}
-RH_Column_15m = aggregatets(RH_Column, FUN = "myMean", on = "minutes", k = 15, dropna = TRUE)
+RH_dt <- RH_Conf2$DateTime
+RH_xts = xts(RH_Conf2, order.by = RH_dt)
+RH_xts$DateTime <- NULL
+my_mean = function(x){
+  mean(as.numeric(x), na.rm=TRUE)
+  }
+RH_Conf2_15m = aggregatets(RH_xts, FUN = "my_mean", on = "minutes", k = 15)
+rm(RH_Conf2, RH_dt, RH_xts)
 ```
 
 ```{r CO2 15 Min}
-CO2_xts = xts(CO2_Conf2, order.by = as.POSIXct(CO2_Conf2$DateTime, format = "%m-%d-%y %H:%M"))
-CO2_Conf2_15m = aggregatets(CO2_xts, FUN = "mean", on = "minutes", k = 15, dropna = TRUE)
+CO2_dt <- CO2_Conf2$DateTime
+CO2_xts = xts(CO2_Conf2, order.by = CO2_dt)
+CO2_xts$DateTime <- NULL
+my_mean = function(x){mean(as.numeric(x), na.rm=TRUE)}
+CO2_Conf2_15m = aggregatets(CO2_xts, FUN = "my_mean", on = "minutes", k = 15)
+rm(CO2_dt, CO2_xts, CO2_Conf2)
 ```
 
+```{r IAQ 15 Min}
+IAQ_Conf2_15m_xts = xts(IAQ_Conf2, order.by = as.POSIXct(IAQ_Conf2$DateTime, format = "%m-%d-%y %H:%M"))
+IAQ_Conf2_15m_xts$DateTime <- NULL
+```
 
-```{r Adding Columns}
+```{r Adding Columns NOT USED YET}
 IAQ_Conf2 <- mutate(IAQ_Conf2, month = month(DateTime),
                     day = day(DateTime),
                     year = year(DateTime),
                     week = week(DateTime))
-RH_Conf2_15m <- mutate(RH_Conf2_15m, month = month(DateTime),
-                    day = day(DateTime),
-                    year = year(DateTime),
-                    week = week(DateTime))
+RH_Conf2_15m <- mutate(RH_Conf2_15m, month = month(RH_Conf2_15m[0]))
+      #              day = day(DateTime),
+       #             year = year(DateTime),
+        #            week = week(DateTime))
 Temp_Conf2_15m <- mutate(Temp_Conf2_15m, month = month(DateTime),
                     day = day(DateTime),
                     year = year(DateTime),
@@ -78,7 +86,7 @@ CO2_Conf2_15m <- mutate(CO2_Conf2_15m, month = month(DateTime),
                     week = week(DateTime))
 ```
 
-```{r}
+```{r CAN'T GET TO WORK}
 library(chrras/climateeng)
 
 psychrometric_chart()
