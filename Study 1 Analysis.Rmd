@@ -67,6 +67,11 @@ IAQ_Conf2_15m_xts = xts(IAQ_Conf2, order.by = as.POSIXct(IAQ_Conf2$DateTime, for
 IAQ_Conf2_15m_xts$DateTime <- NULL
 ```
 
+```{r rename column names}
+names(Temp_Conf2_15m) <- c("Table_dB", "Ceiling_dB", "Open_Office_dB", "Weather_dB", "Weather_Dew_Point")
+names(RH_Conf2_15m) <- c("Table_RH", "Ceiling_RH", "Weather_RH")
+```
+
 ```{r Adding Columns NOT USED YET}
 IAQ_Conf2 <- mutate(IAQ_Conf2, month = month(DateTime),
                     day = day(DateTime),
@@ -86,16 +91,20 @@ CO2_Conf2_15m <- mutate(CO2_Conf2_15m, month = month(DateTime),
                     week = week(DateTime))
 ```
 
-```{r CAN'T GET TO WORK}
-library(chrras/climateeng)
+```{r Psych echo=FALSE, message=FALSE}
+library(climateeng)
+  
+dB_RH <- as.data.frame(Temp_Conf2_15m[,1])
+hum.ratio <- as.data.frame(RH_Conf2_15m[,1])
+dB_RH[,2] <- hum.ratio[,1]
+colnames(dB_RH)[2] <- "Table_RH"
+rm(hum.ratio)
+str(dB_RH)
 
-psychrometric_chart()
+psychrometric_chart(temp.db =dB_RH[,1], hum.ratio = dB_RH[,2], alpha = 1)
 
-temp.db <- c(20, 23, 18, 20, 10, 27)
-hum.ratio <- c(0.005, 0.009, 0.004, 0.011, 0.004, 0.01)
-psychrometric_chart(temp.db, hum.ratio, alpha = 1)
-
-psychrometric_chart(temp.db, hum.ratio, temp.min=5, mollier = TRUE,
- alpha = 1)
-#test
+#psychrometric_chart(temp.db, hum.ratio, temp.min=5, mollier = TRUE,
+# alpha = 1)
 ```
+
+
